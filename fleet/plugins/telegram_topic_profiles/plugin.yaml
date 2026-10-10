@@ -1,0 +1,5 @@
+name: telegram_topic_profiles
+version: 1.0.0
+description: "Route Telegram forum topics to Hermes profiles."
+author: the owner
+kind: standalone

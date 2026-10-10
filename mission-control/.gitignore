@@ -1,0 +1,15 @@
+# State versus source.
+#
+# The crew's own state and MIRAI's state are not source: they change every hour and
+# they can hold secrets. The dashboard file IS committed, because it is the product's
+# own asset and replacing it should show up as a change.
+data/*
+!data/.gitkeep
+!data/roles.json
+*.log
+*.err.log
+__pycache__/
+*.pyc
+.DS_Store
+dashboard.token
+secrets.env

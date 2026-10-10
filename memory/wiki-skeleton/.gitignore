@@ -1,0 +1,16 @@
+# The machinery is not history.
+#
+# The lock, and the pipeline folders that move material around before it becomes a
+# page: keep the folders, ignore whatever lands inside them. A failed 18 MB PDF must
+# not live in git for ever.
+.wiki.lock
+*.lock
+
+raw/_inbox/*
+raw/_working/*
+raw/_done/*
+raw/_failed/*
+!raw/*/.gitkeep
+
+# Nothing else here is ignored on purpose. The pages, the index, the log, WIKI.md
+# and _mail-seen.md ARE the memory: they are exactly what this repo exists to carry.

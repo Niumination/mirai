@@ -1,0 +1,22 @@
+{
+  "_notes": [
+    "Peta id → label Niumination. Plugin TETAP OFF. config.yaml yang merutekan.",
+    "General (id 1) sengaja tidak di map: pesan tanpa thread id = agent utama / inbox.",
+    "chat_id terverifikasi Bot API. Jangan nyalakan plugin sampai pemilik perintahkan.",
+    "Nilai bukan research/writer/developer generik MIRAI."
+  ],
+  "chat_id": "-1004204696417",
+  "chat_title": "Niu-MissionControl",
+  "plugin": "off",
+  "topics": {
+    "802": "Research",
+    "803": "Builder",
+    "804": "QA",
+    "1172": "Kreator",
+    "7402": "Serbaguna",
+    "8853": "ASN",
+    "12595": "Cron & Otomasi",
+    "12707": "Edu Content",
+    "13902": "Orkestrator"
+  }
+}

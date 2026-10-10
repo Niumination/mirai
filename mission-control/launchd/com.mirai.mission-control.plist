@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<!--
+  MIRAI Mission Control as a launchd LaunchAgent (the Mac counterpart of the
+  tutorial's systemd user unit).
+
+  Why the pieces are here:
+   * KeepAlive true is the equivalent of Restart=always, deliberately not
+     on-failure: a SIGTERM counts as a clean exit, so an on-failure unit does
+     not come back from the most ordinary way a process dies.
+   * EnvironmentVariables.PATH must include /opt/homebrew/bin and ~/.local/bin,
+     or every shell-out to hermes fails. launchd starts with a bare PATH.
+   * WorkingDirectory is the server folder, so relative imports resolve.
+
+  Install:
+      mkdir -p ~/Library/LaunchAgents
+      cp com.mirai.mission-control.plist ~/Library/LaunchAgents/
+      # edit the paths below if your home is not /Users/you
+      launchctl bootstrap gui/$(id -u) ~/Library/LaunchAgents/com.mirai.mission-control.plist
+
+  Uninstall:
+      launchctl bootout gui/$(id -u)/com.mirai.mission-control
+
+  Check:
+      launchctl print gui/$(id -u)/com.mirai.mission-control | head -30
+-->
+<plist version="1.0">
+<dict>
+  <key>Label</key>
+  <string>com.mirai.mission-control</string>
+
+  <key>ProgramArguments</key>
+  <array>
+    <string>/usr/bin/python3</string>
+    <string>__HOME__/mirai/mission-control/server/server.py</string>
+    <string>8800</string>
+  </array>
+
+  <key>WorkingDirectory</key>
+  <string>__HOME__/mirai/mission-control/server</string>
+
+  <key>EnvironmentVariables</key>
+  <dict>
+    <key>PATH</key>
+    <string>__HOME__/.local/bin:/opt/homebrew/bin:/usr/local/bin:/usr/bin:/bin</string>
+    <key>PYTHONUNBUFFERED</key>
+    <string>1</string>
+  </dict>
+
+  <key>RunAtLoad</key>
+  <true/>
+  <key>KeepAlive</key>
+  <true/>
+
+  <key>StandardOutPath</key>
+  <string>__HOME__/mirai/data/mission-control.log</string>
+  <key>StandardErrorPath</key>
+  <string>__HOME__/mirai/data/mission-control.err.log</string>
+
+  <key>ProcessType</key>
+  <string>Interactive</string>
+</dict>
+</plist>

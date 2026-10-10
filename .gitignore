@@ -1,0 +1,21 @@
+# Server state — never public
+data/mirai.db*
+data/mirai.db-journal
+data/*.log
+data/*.err.log
+data/avatars/
+data/chat-files/
+data/docs/
+data/docs-deleted/
+data/file-backups/
+data/archive/
+data/snapshots/
+mission-control/secrets.env
+*.env
+!*.env.example
+
+# Backups
+mirai-backups/
+
+# macOS
+.DS_Store
