@@ -24,9 +24,10 @@
 # Install as `wiki` on every profile's PATH. Root is WIKI_DIR, taken from
 # CREW_WIKI_DIR when set (a container keeps each profile's home separate, so the
 # wiki's real path is pinned once and used everywhere).
+# Niumination: wiki lives in the ecosystem root, not $HOME/wiki (moved 10 Okt 2026).
 set -euo pipefail
 
-WIKI="${CREW_WIKI_DIR:-$HOME/wiki}"
+WIKI="${CREW_WIKI_DIR:-$HOME/Desktop/Niumination/wiki}"
 PROCESSED="$WIKI/processed"
 RAW="$WIKI/raw"
 INDEX="$WIKI/index.md"
@@ -51,12 +52,16 @@ check_agent() {
   esac
 }
 
+# macOS has no flock; mkdir is atomic on both platforms and is used as the lock
+# itself. The negative LOCK_WAIT semantics (0 = non-blocking) are preserved.
 lock() {
   mkdir -p "$WIKI"
-  exec 9>"$LOCK"
-  if ! flock -w "$LOCK_WAIT" 9; then
-    die "wiki is busy, try again"
-  fi
+  mkdir "$LOCK" 2>/dev/null || {
+    # Stale lock older than 5 minutes is broken: a killed process leaves no trap.
+    find "$LOCK" -maxdepth 0 -mmin +5 -delete 2>/dev/null
+    mkdir "$LOCK" 2>/dev/null || die "wiki is busy, try again"
+  }
+  trap 'rmdir "$LOCK" 2>/dev/null' EXIT INT TERM
 }
 
 # The snapshot verb is called by the nightly jobs and by the dashboard's button, so
@@ -64,11 +69,14 @@ lock() {
 # dashboard shows and the pack asks for word for word.
 lock_for_snapshot() {
   mkdir -p "$WIKI"
-  exec 9>"$LOCK"
-  if ! flock -w "$LOCK_WAIT" 9; then
-    printf 'wiki: wiki is busy, nothing was snapshotted\n' >&2
-    exit 3
-  fi
+  mkdir "$LOCK" 2>/dev/null || {
+    find "$LOCK" -maxdepth 0 -mmin +5 -delete 2>/dev/null
+    if ! mkdir "$LOCK" 2>/dev/null; then
+      printf 'wiki: wiki is busy, nothing was snapshotted\n' >&2
+      exit 3
+    fi
+  }
+  trap 'rmdir "$LOCK" 2>/dev/null' EXIT INT TERM
 }
 
 # ---------------------------------------------------------------------------
