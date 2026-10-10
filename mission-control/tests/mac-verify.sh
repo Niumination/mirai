@@ -21,7 +21,7 @@ HERMES="${HERMES_HOME:-$HOME/.hermes}"
 PORT="${MIRAI_PORT:-8800}"
 LABEL="com.mirai.mission-control"
 PLIST="$HOME/Library/LaunchAgents/$LABEL.plist"
-WIKI="${CREW_WIKI_DIR:-$HOME/wiki}"
+WIKI="${CREW_WIKI_DIR:-$HOME/Desktop/Niumination/wiki}"
 DO_TURN=0
 [ "${1:-}" = "--turn" ] && DO_TURN=1
 
@@ -57,7 +57,7 @@ if has launchctl; then
   OUT="$(launchctl print "gui/$(id -u)/$LABEL" 2>/dev/null)"
   if [ -n "$OUT" ]; then
     ok "job is loaded in launchd" "$(printf '%s' "$OUT" | awk '/state =/{print $3; exit}')"
-    printf '%s' "$OUT" | grep -qE "keepalive( = 1| \||$)" \
+    printf '%s' "$OUT" | grep -qE "keepalive( = 1| \\||$)" \
       && ok "KeepAlive is on (it restarts itself)" || bad "KeepAlive is OFF" "check the plist"
   else
     bad "job is not loaded" "launchctl bootstrap gui/$(id -u) $PLIST"
@@ -126,13 +126,22 @@ if has hermes; then
   if hermes cron list >/dev/null 2>&1; then
     JOBS="$(hermes cron list 2>/dev/null)"
     MISSING=""
-    for j in wiki-dropbox wiki-mail-sweep wiki-librarian wiki-lint wiki-opening-snapshot wiki-closing-snapshot wiki-offsite; do
+    for j in wiki-dropbox wiki-librarian wiki-lint wiki-opening-snapshot wiki-closing-snapshot; do
       printf '%s' "$JOBS" | grep -q "$j" || MISSING="$MISSING $j"
     done
     if [ -z "$MISSING" ]; then
-      ok "all seven wiki jobs are scheduled" "hermes cron list"
+      ok "five wiki jobs (adopsi: tanpa mail-sweep/offsite)" "hermes cron list"
     else
       bad "missing cron jobs:$MISSING" "create them from memory/schedule/cron-jobs.json"
+    fi
+    EXTRA=""
+    for j in wiki-mail-sweep wiki-offsite; do
+      printf '%s' "$JOBS" | grep -q "$j" && EXTRA="$EXTRA $j"
+    done
+    if [ -n "$EXTRA" ]; then
+      skip "mail-sweep/offsite present (not required)" "$EXTRA"
+    else
+      ok "mail-sweep and offsite not scheduled" "sesuai ADOPT-MAC"
     fi
   else
     skip "hermes cron list did not answer" "may need a gateway restart"
@@ -169,7 +178,11 @@ fi
 # ---------------------------------------------------------------- dashboard + hand mode files
 head_ "the console and Hand mode's files"
 PAGE_CODE="$(curl -s -o /tmp/macverify-page.html -w '%{http_code}' -m 15 "http://127.0.0.1:$PORT/")"
-SIZE="$(wc -c < /tmp/macverify-page.html | tr -d ' ')"
+if [ -f /tmp/macverify-page.html ]; then
+  SIZE="$(wc -c < /tmp/macverify-page.html | tr -d ' ')"
+else
+  SIZE=0
+fi
 case "$PAGE_CODE" in
   200) ok "GET / serves a page" "$SIZE bytes";;
   *)   bad "GET / answered $PAGE_CODE" "put the dashboard at $MIRAI_DIR/dashboard.html";;

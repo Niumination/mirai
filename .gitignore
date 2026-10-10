@@ -1,21 +1,52 @@
-# Server state — never public
+# State and downloads stay out of history. The star is not decoration: ignoring the
+# FOLDER means git never descends into it, so the negation below can never re-include
+# anything — ignore the CONTENTS instead, then rescue the .gitkeep files.
+#
+# layout: this file sits at the top of the package, which is what becomes ~/mirai.
+
+# --- the database, with its WAL sidecars (that is what * is for) --------------
 data/mirai.db*
 data/mirai.db-journal
-data/*.log
-data/*.err.log
-data/avatars/
-data/chat-files/
-data/docs/
-data/docs-deleted/
-data/file-backups/
-data/archive/
-data/snapshots/
+
+# --- state the app writes -----------------------------------------------------
+data/avatars/*
+data/chat-files/*
+data/docs/*
+data/docs-deleted/*
+data/archive/*
+data/file-backups/*
+data/activity.log
+data/logs/
+dashboard.token
+lint-request.txt
+
+# ...but the folders themselves travel, or a fresh clone crashes on its first write
+!data/*/.gitkeep
+!data/*/*/.gitkeep
+!data/.gitkeep
+
+# --- secrets ------------------------------------------------------------------
 mission-control/secrets.env
-*.env
-!*.env.example
+.env
+*.token
+auth.token
+**/auth.token
+**/dashboard.token
 
-# Backups
-mirai-backups/
+# --- somebody else's 30 MB of models: a download, not source ------------------
+lib/mediapipe/
 
-# macOS
+# --- build noise --------------------------------------------------------------
+__pycache__/
+*.pyc
 .DS_Store
+*.bak
+*.bak.*
+*.before-restore
+
+# --- local snapshots ----------------------------------------------------------
+mirai-backups/
+*-backups/
+
+# dashboard.html is deliberately NOT ignored: it is the artifact, and tracking one
+# file is how you can see it changed the day you replace it with a newer one.

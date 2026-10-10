@@ -132,7 +132,7 @@ chk "lint-now again inside 5 min" "$(curl -s -b /tmp/wiki-e2e-jar.txt -X POST "$
 chk "commit (through the verb)" "$(curl -s -b /tmp/wiki-e2e-jar.txt -X POST "$B/api/memory/commit")" '"committed": true'
 chk "commit again" "$(curl -s -b /tmp/wiki-e2e-jar.txt -X POST "$B/api/memory/commit")" "nothing to snapshot"
 # hold the wiki lock, then press the button: it must say busy, and commit nothing
-( exec 9>"$R/.wiki.lock"; flock -w 5 9; sleep 4 ) &
+( mkdir "$R/.wiki.lock" && sleep 4; rmdir "$R/.wiki.lock" 2>/dev/null ) &
 HOLDER=$!
 sleep 0.7
 chk "commit while the wiki is busy" "$(curl -s -b /tmp/wiki-e2e-jar.txt -X POST "$B/api/memory/commit")" "wiki is busy, nothing was snapshotted"

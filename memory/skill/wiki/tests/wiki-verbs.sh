@@ -74,9 +74,9 @@ chk "the closing mark is unconditional" "$(bash "$W" snapshot --label 'closing s
 say "closing commit message" "$(git -C "$R" log -1 --pretty=%s)"
 # hold the lock, then ask for a snapshot: it must refuse in the pack's own words
 (
-  exec 9>"$R/.wiki.lock"
-  flock -w 5 9
+  mkdir "$R/.wiki.lock"
   sleep 4
+  rmdir "$R/.wiki.lock" 2>/dev/null
 ) &
 HOLDER=$!
 sleep 0.7

@@ -20,7 +20,7 @@ Paket di `mirai/` = kode + wiki + console. Adopsi **bukan** drop-in 3 persona ge
 | Skill 238 duplikat | **Selesai di Mac.** 0 duplikat, 13 binding resolve, 804 = `code-audit`. Jangan unset/ulang. |
 | Cockpit | Boleh kosong (kanban 0, thread fresh-reset). Jangan seed kartu palsu. |
 | niu-mission-control lama | **Sudah diarsipkan** di Mac. Jangan hidupkan `:5200`. |
-| Wiki | **Lengkap:** skeleton `~/wiki`, 9 verb, skill wiki ke profile **default saja**, dashboard `:8899`, cron malam **tanpa** 07:00 dan 03:40. |
+| Wiki | **Lengkap:** skeleton di `$HOME/Desktop/Niumination/wiki` (bukan `~/wiki`), 9 verb, lock = `mkdir` (macOS tidak punya `flock`), skill wiki ke profile **default saja**, dashboard `:8899`, cron malam **tanpa** 07:00 dan 03:40. |
 | Mail-sweep / offsite | Skrip **ada** di paket. **Jangan** `hermes cron create` untuk `wiki-mail-sweep` dan `wiki-offsite`. |
 | Python LaunchAgent | `/usr/bin/python3` (3.9.6), bukan 3.14.8 di PATH shell. |
 | Port | `:8800` Mission Control, `:8899` wiki dashboard. Jangan `:9900` / `:20128`. |

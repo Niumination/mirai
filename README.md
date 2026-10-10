@@ -14,6 +14,8 @@ Tiga lapis, dibangun berurutan, masing-masing berguna sendiri:
 Dokumen pendamping:
 
 - `docs/ADOPT-MAC.md` — **baca dulu** sebelum apply di Mac (larangan create-fleet / SOUL / yaml).
+- `docs/HERMES-NEXT.md` — prompt baca-saja untuk Hermes Mac (bukti tahap berikutnya).
+- `docs/MAC-STATE.md` — status Mac pra-adopsi (skill 0 duplikat, niu-mc arsip).
 - `docs/TOPIK-NIUMINATION.md` — 10 topik forum nyata + usulan fungsi/gabung.
 - `docs/00-ARSITEKTUR.md` — bagaimana ketiganya terhubung.
 - `docs/DEPLOY-MAC.md` — urutan install teknis + bukti; saring dengan ADOPT-MAC.
