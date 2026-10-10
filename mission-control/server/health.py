@@ -56,9 +56,16 @@ def _uptime_s() -> float | None:
     if IS_MAC:
         raw = _sysctl("kern.boottime")           # { sec = 1759..., usec = ... }
         m = re.search(r"sec\s*=\s*(\d+)", raw)
+        if not m:
+            m = re.search(r"(\d{9,12})", raw)    # Darwin 26+ may drop the labels
         if m:
-            return time.time() - int(m.group(1))
-        return None
+            boot = int(m.group(1))
+            if boot > 1_000_000_000:
+                return max(0.0, time.time() - boot)
+        # last resort: `sysctl -n kern.boottime` sometimes prints only the struct
+        out = _run(["uptime"])
+        # "10:22  up  2 days,  4:12," or "up 47 mins"
+        return _parse_uptime_cmd(out)
     try:
         with open("/proc/uptime") as fh:
             return float(fh.read().split()[0])
@@ -66,8 +73,20 @@ def _uptime_s() -> float | None:
         return None
 
 
+def _parse_uptime_cmd(out: str) -> float | None:
+    if not out:
+        return None
+    m = re.search(r"up\s+(?:(\d+)\s+days?,\s*)?(?:(\d+):(\d+)|(\d+)\s+min)", out)
+    if not m:
+        return None
+    days = int(m.group(1) or 0)
+    if m.group(4):
+        return days * 86400 + int(m.group(4)) * 60
+    return days * 86400 + int(m.group(2) or 0) * 3600 + int(m.group(3) or 0) * 60
+
+
 def _human_uptime(seconds: float | None) -> str:
-    if not seconds:
+    if seconds is None:
         return "unknown"
     d, rem = divmod(int(seconds), 86400)
     h, rem = divmod(rem, 3600)
@@ -363,8 +382,10 @@ def _diagnostics(sample: dict) -> dict:
     gw = roster.gateway()
     check("Hermes gateway up", gw["up"], f"pid {gw['pid']}" if gw["pid"] else "no gateway.pid")
     tick = roster.cron_ticker()
+    src = tick.get("source") or ""
     check("Cron ticker fresh", tick["running"],
-          f"heartbeat {tick['heartbeat_s']}s ago" if tick["heartbeat_s"] is not None else "no heartbeat file")
+          (f"heartbeat {tick['heartbeat_s']}s ago" + (f" ({src})" if src else ""))
+          if tick["heartbeat_s"] is not None else "no heartbeat file")
 
     unreadable = [a["profile"] for a in roster.agents().get("agents", []) if a["status"] == "unreachable"]
     check("Every profile readable", not unreadable,
@@ -374,13 +395,17 @@ def _diagnostics(sample: dict) -> dict:
           f"{cpu.get('pct')}%" if cpu.get("pct") is not None else "first sample, no delta yet")
     check("Processes visible", procs > 0, f"{procs} processes")
     check("TCP connections counted", conns >= 0, f"{conns} established")
-    check("MIRAI data directory", (Path(os.environ.get("MIRAI_DIR", str(Path.home() / "mirai"))) / "data").exists(),
+    mirai_root = Path(os.environ.get("MIRAI_DIR") or (
+        str(Path.home() / "Desktop" / "Niumination" / "mirai")
+        if (Path.home() / "Desktop" / "Niumination" / "mirai").is_dir()
+        else str(Path.home() / "mirai")))
+    check("MIRAI data directory", (mirai_root / "data").exists(),
           "present")
     check("Dashboard file in place",
-          (Path(os.environ.get("MIRAI_DIR", str(Path.home() / "mirai"))) / "dashboard.html").exists(),
+          (mirai_root / "dashboard.html").exists(),
           "dashboard.html found or not — / serves a placeholder until it is there")
-    up = (sample.get("host") or {}).get("uptime_s") or 0
-    check("Machine up over an hour", up > 3600, _human_uptime(up))
+    up = (sample.get("host") or {}).get("uptime_s")
+    check("Machine up over an hour", (up or 0) > 3600, _human_uptime(up))
     check("Timezone configured", bool(datetime.now().astimezone().tzname()), str(datetime.now().astimezone().tzname()))
 
     import os as _os

@@ -439,15 +439,180 @@ def gateway() -> dict:
     return info
 
 
-def cron_ticker() -> dict:
-    hb = HERMES / "cron" / "ticker_heartbeat"
-    if not hb.exists():
-        return {"running": False, "heartbeat_s": None}
+def _wiki_dir() -> Path:
+    env = os.environ.get("CREW_WIKI_DIR")
+    if env:
+        return Path(env).expanduser()
+    eco = HOME / "Desktop" / "Niumination" / "wiki"
+    if eco.is_dir():
+        return eco
+    return HOME / "wiki"
+
+
+def _age_of_heartbeat_file(path: Path) -> float | None:
+    if not path.exists():
+        return None
+    raw = path.read_text(encoding="utf-8", errors="replace").strip().split()[0]
     try:
-        age = time.time() - float(hb.read_text().strip())
-    except Exception:
-        return {"running": False, "heartbeat_s": None}
-    return {"running": age < 300, "heartbeat_s": round(age, 1)}
+        ts = float(raw)
+        if ts > 1_000_000_000:
+            return max(0.0, time.time() - ts)
+    except ValueError:
+        pass
+    try:
+        return max(0.0, time.time() - path.stat().st_mtime)
+    except OSError:
+        return None
+
+
+def _wiki_heartbeat_age() -> float | None:
+    p = _wiki_dir() / "_wiki-health.md"
+    if not p.exists():
+        return None
+    try:
+        text = p.read_text(encoding="utf-8", errors="replace")[-8000:]
+    except OSError:
+        return None
+    ages: list[float] = []
+    for m in re.finditer(r"heartbeat\s+\S+\s+(\S+)", text):
+        tok = m.group(1).strip().strip(",")
+        try:
+            if re.match(r"^\d+(\.\d+)?$", tok):
+                ages.append(time.time() - float(tok))
+                continue
+            iso = tok.replace("Z", "+00:00")
+            dt = datetime.fromisoformat(iso)
+            ages.append(time.time() - dt.timestamp())
+        except Exception:
+            continue
+    if ages:
+        return min(a for a in ages if a >= 0) if any(a >= 0 for a in ages) else min(ages)
+    try:
+        return max(0.0, time.time() - p.stat().st_mtime)
+    except OSError:
+        return None
+
+
+def cron_ticker() -> dict:
+    for name in ("ticker_heartbeat", "heartbeat", "last_tick"):
+        age = _age_of_heartbeat_file(HERMES / "cron" / name)
+        if age is not None:
+            return {"running": age < 300, "heartbeat_s": round(age, 1), "source": f"hermes/cron/{name}"}
+    wiki_age = _wiki_heartbeat_age()
+    if wiki_age is not None:
+        # dropbox is */30 — a wiki heartbeat under 40 minutes is "the night jobs are alive"
+        return {"running": wiki_age < 40 * 60, "heartbeat_s": round(wiki_age, 1), "source": "wiki/_wiki-health.md"}
+    return {"running": False, "heartbeat_s": None, "source": None}
+
+
+# ---------------------------------------------------------------------------
+# Telegram topics (config.yaml) — read only, no Hermes profiles created
+# ---------------------------------------------------------------------------
+TOPIC_SEED = (
+    ("1", "TR", "Triage", "Inbox manusia. Bukan bos kru."),
+    ("802", "RS", "Research", "Cari, kutip, provenance. Bukan Builder."),
+    ("803", "BD", "Builder", "Ubah kode / repo. Satu PR, satu diff."),
+    ("804", "QA", "QA", "Review, tes, audit. Putusan lolos atau tidak."),
+    ("1172", "KR", "Kreator", "Brand, copy, video kampanye."),
+    ("7402", "SB", "Sandbox", "Eksperimen. Bukan bak sampah."),
+    ("8853", "AS", "ASN", "SKP, rapat, weekly dinas."),
+    ("12595", "CR", "Cron", "Laporan otomatis. Bukan tempat minta skrip."),
+    ("12707", "ED", "Edu Content", "Kurikulum, materi ajar."),
+    ("13902", "OR", "Orkestrator", "Bos kru: kanban, subagent, pecah kerja."),
+)
+
+
+def _hermes_config_text() -> str:
+    for name in ("config.yaml", "config.yml"):
+        p = HERMES / name
+        if p.exists():
+            return _read_text(p)
+    return ""
+
+
+def _yaml_scalar_map(text: str, heading: str) -> dict[str, str]:
+    """Pull indented 'id: value' entries under a heading, stdlib only."""
+    if not text or heading not in text:
+        return {}
+    lines = text.splitlines()
+    start = None
+    heading_re = re.compile(rf"^\s*{re.escape(heading)}\s*:")
+    for i, line in enumerate(lines):
+        if heading_re.match(line):
+            start = i + 1
+            break
+    if start is None:
+        return {}
+    out: dict[str, str] = {}
+    key_re = re.compile(r"^(\s+)['\"]?(\d+)['\"]?\s*:\s*(.*)$")
+    i = start
+    while i < len(lines):
+        line = lines[i]
+        if line.strip() and not line.startswith((" ", "\t")) and not line.strip().startswith("#"):
+            break
+        m = key_re.match(line)
+        if m:
+            tid, rest = m.group(2), m.group(3).strip()
+            if rest in ("|", ">", "") or rest.startswith("|") or rest.startswith(">"):
+                buf = []
+                i += 1
+                while i < len(lines) and (not lines[i].strip() or lines[i].startswith((" ", "\t"))):
+                    if lines[i].strip() and not key_re.match(lines[i]):
+                        buf.append(lines[i].strip())
+                    elif key_re.match(lines[i]):
+                        break
+                    else:
+                        i += 1
+                        continue
+                    i += 1
+                out[tid] = " ".join(buf).strip()
+                continue
+            out[tid] = rest.strip("'\"").strip()
+        i += 1
+    return out
+
+
+def _topics_from_yaml() -> list[dict]:
+    text = _hermes_config_text()
+    prompts = _yaml_scalar_map(text, "channel_prompts")
+    models = _yaml_scalar_map(text, "channel_overrides")
+    if not prompts:
+        return []
+    empty_hourly = {"you": [0] * 24, "agent": [0] * 24}
+    out = []
+    for tid, code, name, role in TOPIC_SEED:
+        if tid not in prompts:
+            continue
+        prompt = prompts.get(tid) or ""
+        m = re.search(r"Kamu adalah\s+([^—.]+)", prompt)
+        label = m.group(1).strip() if m else name
+        model = models.get(tid) or ""
+        if " " in model and "/" not in model:
+            pass
+        out.append({
+            "code": code,
+            "short": label.split()[0] if label else name,
+            "name": label or name,
+            "role": role,
+            "profile": f"topic-{tid}",
+            "model": model or "unknown",
+            "status": "ready",
+            "status_label": STATUS_LABELS["ready"],
+            "present": True,
+            "aliases": [code, tid, name],
+            "building": f"{name} Cabin",
+            "avatar": None,
+            "portrait": None,
+            "last_active": None,
+            "stats": {
+                "last_active": None, "avg_response_s": None,
+                "sessions_24h": 0, "sessions_total": 0, "messages_7d": 0,
+                "tokens_24h": 0, "hourly_24h": empty_hourly,
+            },
+            "kind": "topic",
+            "thread_id": tid,
+        })
+    return out
 
 
 # ---------------------------------------------------------------------------
@@ -477,6 +642,7 @@ def agents(force: bool = False) -> dict:
     avatar_rows = {r["owner"]: r for r in store.query("SELECT * FROM avatars")}
 
     records: list[dict] = []
+    seen_codes: set[str] = set()
     for profile in profiles():
         home = _home(profile)
         readable = True
@@ -485,7 +651,9 @@ def agents(force: bool = False) -> dict:
         except PermissionError:
             stats, readable = {}, False
         except Exception:
-            stats, readable = {}, False
+            # A locked or odd state.db is not "the profile cannot be read".
+            # Unreachable is reserved for a seat whose home we cannot open.
+            stats, readable = {}, os.access(str(home), os.R_OK)
 
         name, _from_soul = name_from_soul(profile)
         name = _display_name(name)
@@ -500,6 +668,7 @@ def agents(force: bool = False) -> dict:
                     break
 
         code = code_for(profile, name)
+        seen_codes.add(code)
         status = _status_for(profile, stats, board_agents, readable)
         av = avatar_rows.get(code)
         avatar = None
@@ -534,7 +703,15 @@ def agents(force: bool = False) -> dict:
                 "tokens_24h": stats.get("tokens_24h", 0),
                 "hourly_24h": stats.get("hourly_24h", {"you": [0] * 24, "agent": [0] * 24}),
             },
+            "kind": "profile",
+            "thread_id": None,
         })
+
+    for topic in _topics_from_yaml():
+        if topic["code"] in seen_codes:
+            continue
+        records.append(topic)
+        seen_codes.add(topic["code"])
 
     # fleet roll-up
     hours = [0] * 24

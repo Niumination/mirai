@@ -141,15 +141,8 @@ def _jobs_for(profile: str, display_name: str) -> list[dict]:
 
 
 def _ticker() -> dict:
-    hb = HERMES / "cron" / "ticker_heartbeat"
-    if not hb.exists():
-        return {"running": False, "heartbeat_s": None}
-    try:
-        age = time.time() - float(hb.read_text().strip())
-    except Exception:
-        return {"running": False, "heartbeat_s": None}
-    # ticker_last_success sits beside it and looks identical; it is not the same thing.
-    return {"running": age < 300, "heartbeat_s": round(age, 1)}
+    import roster
+    return roster.cron_ticker()
 
 
 def list_jobs(req, query, body):            # noqa: ANN001

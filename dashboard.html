@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="en">
+<html lang="id">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -423,6 +423,35 @@ const ago = t => { if(!t) return "—"; const s=Math.max(0,(Date.now()/1000)-Num
   if(s<86400)return Math.round(s/3600)+"h ago"; return Math.round(s/86400)+"d ago"; };
 
 let STATE = { settings:{}, agents:[], missions:[], health:null, greeting:null };
+const I18N = {
+  id: {
+    "nav.cockpit":"Orkestrasi","nav.agents":"Kru","nav.deploy":"Pasang agen","nav.city":"Kota agen",
+    "nav.missions":"Misi","nav.chat":"Obrolan","nav.docs":"Dokumen","nav.schedule":"Jadwal",
+    "nav.health":"Kesehatan","nav.files":"Berkas","nav.terminal":"Terminal","nav.voice":"Suara",
+    "nav.hand":"Mode tangan","nav.integrations":"Integrasi","nav.settings":"Pengaturan",
+    "grp.fleet":"Kru","grp.work":"Kerja","grp.machine":"Mesin",
+    "kpi.ready":"Agen siap","empty.agents":"belum ada persona di mesin ini",
+    "lang.id":"ID","lang.en":"EN"
+  },
+  en: {
+    "nav.cockpit":"Cockpit","nav.agents":"Agents","nav.deploy":"Deploy agent","nav.city":"Agent City",
+    "nav.missions":"Missions","nav.chat":"Chat","nav.docs":"Docs","nav.schedule":"Schedule",
+    "nav.health":"Health","nav.files":"Files","nav.terminal":"Terminal","nav.voice":"Voice",
+    "nav.hand":"Hand mode","nav.integrations":"Integrations","nav.settings":"Settings",
+    "grp.fleet":"The fleet","grp.work":"Work","grp.machine":"The machine",
+    "kpi.ready":"Agents ready","empty.agents":"no profiles on this machine yet",
+    "lang.id":"ID","lang.en":"EN"
+  }
+};
+let LANG = localStorage.getItem("mirai.lang") || "id";
+if(LANG!=="id" && LANG!=="en") LANG="id";
+function t(k){ const pack=I18N[LANG]||I18N.id; return (pack[k]||I18N.en[k]||k); }
+function setLang(next){
+  LANG = next==="en" ? "en" : "id";
+  localStorage.setItem("mirai.lang", LANG);
+  document.documentElement.lang = LANG;
+  location.reload();
+}
 
 function toast(msg, ok=true){
   const box=$("#toast"), el=document.createElement("div");
@@ -445,29 +474,30 @@ async function api(path, opts={}){
    page that exists is reachable and a page that does not is not faked.
    --------------------------------------------------------------------------- */
 const PAGES = [
-  {id:"cockpit",   label:"Cockpit",         glyph:"\u25c6", group:"The fleet"},
-  {id:"agents",    label:"Agents",          glyph:"\u25cf", group:"The fleet"},
-  {id:"deploy",    label:"Deploy agent",    glyph:"+",        group:"The fleet"},
-  {id:"city",      label:"Agent City",      glyph:"\u25a6", group:"The fleet"},
-  {id:"missions",  label:"Missions",        glyph:"\u25ce", group:"Work"},
-  {id:"chat",      label:"Chat",            glyph:"\u2709", group:"Work"},
-  {id:"docs",      label:"Docs",            glyph:"\u25a4", group:"Work"},
-  {id:"schedule",  label:"Schedule",        glyph:"\u25f7", group:"Work"},
-  {id:"health",    label:"Health",          glyph:"\u2318", group:"The machine"},
-  {id:"files",     label:"Files",           glyph:"\u25a3", group:"The machine"},
-  {id:"terminal",  label:"Terminal",        glyph:"\u25b7", group:"The machine"},
-  {id:"voice",     label:"Voice",           glyph:"\u25cd", group:"The machine"},
-  {id:"hand",      label:"Hand mode",       glyph:"\u2733", group:"The machine"},
-  {id:"integrations", label:"Integrations", glyph:"\u25c7", group:"The machine"},
-  {id:"settings",  label:"Settings",        glyph:"\u2699", group:"The machine"},
+  {id:"cockpit",   labelKey:"nav.cockpit",      glyph:"\u25c6", groupKey:"grp.fleet"},
+  {id:"agents",    labelKey:"nav.agents",       glyph:"\u25cf", groupKey:"grp.fleet"},
+  {id:"deploy",    labelKey:"nav.deploy",       glyph:"+",        groupKey:"grp.fleet"},
+  {id:"city",      labelKey:"nav.city",         glyph:"\u25a6", groupKey:"grp.fleet"},
+  {id:"missions",  labelKey:"nav.missions",     glyph:"\u25ce", groupKey:"grp.work"},
+  {id:"chat",      labelKey:"nav.chat",         glyph:"\u2709", groupKey:"grp.work"},
+  {id:"docs",      labelKey:"nav.docs",         glyph:"\u25a4", groupKey:"grp.work"},
+  {id:"schedule",  labelKey:"nav.schedule",     glyph:"\u25f7", groupKey:"grp.work"},
+  {id:"health",    labelKey:"nav.health",       glyph:"\u2318", groupKey:"grp.machine"},
+  {id:"files",     labelKey:"nav.files",        glyph:"\u25a3", groupKey:"grp.machine"},
+  {id:"terminal",  labelKey:"nav.terminal",     glyph:"\u25b7", groupKey:"grp.machine"},
+  {id:"voice",     labelKey:"nav.voice",        glyph:"\u25cd", groupKey:"grp.machine"},
+  {id:"hand",      labelKey:"nav.hand",         glyph:"\u2733", groupKey:"grp.machine"},
+  {id:"integrations", labelKey:"nav.integrations", glyph:"\u25c7", groupKey:"grp.machine"},
+  {id:"settings",  labelKey:"nav.settings",     glyph:"\u2699", groupKey:"grp.machine"},
 ];
 
 function buildShell(){
   const nav=$("#nav"); let last="";
   for(const p of PAGES){
-    if(p.group!==last){ const d=document.createElement("div"); d.className="sep"; d.textContent=p.group; nav.appendChild(d); last=p.group; }
+    const grp=t(p.groupKey||"grp.fleet");
+    if(grp!==last){ const d=document.createElement("div"); d.className="sep"; d.textContent=grp; nav.appendChild(d); last=grp; }
     const b=document.createElement("button"); b.id="nav-"+p.id;
-    b.innerHTML = `<span class="g" aria-hidden="true">${p.glyph||"\u00b7"}</span><span>${p.label}</span>`;
+    b.innerHTML = `<span class="g" aria-hidden="true">${p.glyph||"\u00b7"}</span><span>${t(p.labelKey)}</span>`;
     b.onclick=()=>show(p.id); nav.appendChild(b);
   }
   const pages=$("#pages");
@@ -557,7 +587,7 @@ RENDERERS.cockpit = async () => {
           <div>
             <div class="kpis">
               <div class="kpi"><b>${live}<span class="sub" style="color:oklch(0.97 0.012 75 / .45)"> / ${STATE.agents.length}</span></b>
-                <small>Agents ready</small><span>${esc(STATE.agents.map(a=>a.short||a.name).join(" \u00b7 "))||"none yet"}</span></div>
+                <small>${t("kpi.ready")}</small><span>${esc(STATE.agents.map(a=>a.short||a.name).join(" \u00b7 "))||"—"}</span></div>
               <div class="kpi"><b>${running}<span class="sub" style="color:oklch(0.97 0.012 75 / .45)"> / ${STATE.missions.length}</span></b>
                 <small>Missions running</small><span>${esc(MISSIONS_MODE())}</span></div>
               <div class="kpi"><b>${diag.passed}<span class="sub" style="color:oklch(0.97 0.012 75 / .45)"> / ${diag.checks}</span></b>
@@ -573,7 +603,7 @@ RENDERERS.cockpit = async () => {
       </section>
 
       <h3>The crew</h3>
-      <div class="agents">${STATE.agents.map(agentCard).join("") || "<p class='empty'>no profiles on this machine yet</p>"}</div>
+      <div class="agents">${STATE.agents.map(agentCard).join("") || `<p class='empty'>${t("empty.agents")}</p>`}</div>
 
       ${fleet.seats ? `
       <h3>The fleet in numbers</h3>
@@ -610,7 +640,11 @@ function railFoot(agents){
   const el = $("#rail-foot"); if(!el) return;
   const host = (agents.host && agents.host.hostname) || location.hostname || "127.0.0.1";
   const where = location.port ? host + ":" + location.port : host;
-  el.innerHTML = `Bound to <b>${esc(where)}</b>`;
+  el.innerHTML = `Bound to <b>${esc(where)}</b>
+    <div style="margin-top:8px;display:flex;gap:6px">
+      <button type="button" class="pill" onclick="setLang('id')" ${LANG==="id"?"style='outline:1px solid oklch(0.66 0.22 38)'":""}>${t("lang.id")}</button>
+      <button type="button" class="pill" onclick="setLang('en')" ${LANG==="en"?"style='outline:1px solid oklch(0.66 0.22 38)'":""}>${t("lang.en")}</button>
+    </div>`;
 }
 
 function MISSIONS_MODE(){ return STATE.missions.length? "board: "+(STATE.missions[0].mode||"—") : "no missions yet"; }
