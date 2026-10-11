@@ -1,0 +1,12 @@
+{
+  "source": "project-curated (not midudev/autoskills runtime)",
+  "reason": "autoskills@0.3.6 needs Node >=22.6; registry is JS/cloud stacks. MIRAI has no package.json.",
+  "upstream": "https://github.com/Niumination/mirai",
+  "synced_sha": "193092157601b067d28963f8b8466b55785b2454",
+  "skills": [
+    ".agents/skills/mirai-adopt-mac",
+    ".agents/skills/mirai-python-stdlib",
+    ".agents/skills/mirai-console-html",
+    ".agents/skills/mirai-wiki-launchd"
+  ]
+}

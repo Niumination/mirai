@@ -13,6 +13,7 @@ Tiga lapis, dibangun berurutan, masing-masing berguna sendiri:
 
 Dokumen pendamping:
 
+- `AGENTS.md` — catatan agen + skills proyek di `.agents/skills/` (bukan `npx autoskills`, bukan `~/.hermes/skills`).
 - `docs/ADOPT-MAC.md` — **baca dulu** sebelum apply di Mac (larangan create-fleet / SOUL / yaml).
 - `docs/HERMES-NEXT.md` — prompt baca-saja untuk Hermes Mac (bukti tahap berikutnya).
 - `docs/MAC-STATE.md` — status Mac pra-adopsi (skill 0 duplikat, niu-mc arsip).

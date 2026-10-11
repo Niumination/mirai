@@ -19,8 +19,17 @@ Tanpa `channel_prompts` di yaml (uji sandbox) daftar tetap seperti dulu.
 
 ## i18n
 
-Console: default **id**, tombol ID/EN di kaki rail, `localStorage mirai.lang`. Nav 15 halaman + grup + KPI. Bukan setiap toast. Wiki :8899 belum (LaunchAgent belum ada di Mac).
+Console: default **id**, tombol ID/EN di kaki rail, `localStorage mirai.lang`. Nav 15 halaman + grup + KPI. Bukan setiap toast.
 
-## Belum
+Konsol visual (arena #4, commit `1930921`): ink field, mosaic kru 2-huruf, tanpa pack avatar.
 
-10 avatar donghua; i18n wiki page; :8899.
+## Bukan pekerjaan ini lagi
+
+- **Avatar 10 PNG / `/crew/`** — dibatalkan. Kartu inisial saja.
+- **autoskills midudev** — tidak cocok (Node ≥22 + stack JS). Skills agen ada di `.agents/skills/` + `AGENTS.md`.
+
+## Masih di Mac (bukan sandbox)
+
+- Reload LaunchAgent `com.mirai.*` dari Terminal **luar** gateway; `mac-verify`.
+- Wiki dashboard **:8899** + i18n halaman wiki (console sudah ID).
+- Health Darwin, chat Hermes, kamera, Whisper — lihat `STATUS-UJI.md` / `HERMES-NEXT.md`.
