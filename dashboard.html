@@ -455,6 +455,10 @@ button.mosaic:hover, .mosaic:hover{
   content:""; position:absolute; right:-40px; top:-50px; width:160px; height:160px; border-radius:50%;
   background:oklch(0.66 0.22 38 / .35); filter:blur(28px); pointer-events:none;
 }
+.mosaic .faceimg{
+  position:absolute; inset:0; width:100%; height:100%; object-fit:cover;
+  opacity:.62; filter:saturate(.85) contrast(1.05); pointer-events:none;
+}
 .mosaic .xl{
   font-family:'Instrument Serif',serif; font-size:64px; line-height:.75;
   letter-spacing:-.05em; position:relative; z-index:1; color:var(--cream);
@@ -755,11 +759,17 @@ function railFoot(agents){
 }
 
 function MISSIONS_MODE(){ return STATE.missions.length? "board: "+(STATE.missions[0].mode||"—") : "no missions yet"; }
+function faceUrl(a){
+  return (a && a.avatar && (a.avatar.url||a.avatar.thumb)) || "";
+}
 function mosaicTile(a){
   const code=esc((a.code||"??").slice(0,2));
   const live = a.status==="ready"||a.status==="working"||a.status==="active";
   const go = a.kind==="topic" ? "agents" : "chat";
+  const url = faceUrl(a);
+  const img = url ? `<img class="faceimg" src="${esc(url)}" alt="">` : "";
   return `<button type="button" class="mosaic" onclick="show('${go}')">
+    ${img}
     <i class="live ${live?"":"off"}"></i>
     <div class="xl">${code}</div>
     <div class="nm">${esc(a.name||a.short||"")}</div>
@@ -1042,12 +1052,22 @@ async function loadHistory(){
   try{
     const h = await api("/api/chat/history?agent="+encodeURIComponent(CHAT.agent));
     if($("#ch-state")) $("#ch-state").textContent = h.thinking ? "the agent is thinking…" : "";
-    log.innerHTML = (h.messages||[]).map(m=>`
-      <div style="align-self:${m.role==="you"?"flex-end":"flex-start"};display:flex;flex-direction:column;gap:6px;max-width:84%">
+    const ag = (STATE.agents||[]).find(x=>x.code===CHAT.agent);
+    const au = faceUrl(ag);
+    log.innerHTML = (h.messages||[]).map(m=>{
+      const crewFace = (m.role!=="you" && au)
+        ? `<img src="${esc(au)}" alt="" style="width:36px;height:36px;border-radius:12px;object-fit:cover;flex:0 0 36px;border:1px solid var(--border)">`
+        : "";
+      return `
+      <div style="align-self:${m.role==="you"?"flex-end":"flex-start"};display:flex;align-items:flex-end;gap:8px;max-width:84%">
+        ${m.role==="you"?"":crewFace}
+        <div style="display:flex;flex-direction:column;gap:6px;min-width:0">
         <div class="sub mono" style="text-align:${m.role==="you"?"right":"left"};letter-spacing:.14em;text-transform:uppercase;font-size:9px">
           ${m.role==="you"?"you":esc(h.agent)} \u00b7 ${ago(m.at)}${m.ms?" \u00b7 "+nf(m.ms/1000,1)+"s":""}</div>
         <div class="bubble ${m.role==="you"?"you":"crew"}">${esc(m.text)}</div>
-      </div>`).join("") || "<p class='empty'>nothing here yet — say something</p>";
+        </div>
+      </div>`;
+    }).join("") || "<p class='empty'>nothing here yet — say something</p>";
     log.scrollTop = log.scrollHeight;
   }catch(e){ log.innerHTML = `<div class="notice bad">${esc(e.message)}</div>`; }
 }
@@ -1428,7 +1448,7 @@ RENDERERS.city = async () => {
       this in 3D with portraits; this console keeps the same information flat, so nothing here is decorative-only.</p>
       <div class="agents">
         ${STATE.agents.map(x=>`<div class="card agent">
-          <div class="split"><div class="avatar">${(x.short||x.name||"AG").slice(0,2).toUpperCase()}</div>
+          <div class="split"><div class="avatar">${faceUrl(x)?`<img src="${esc(faceUrl(x))}" alt="">`:esc((x.code||x.short||x.name||"AG").slice(0,2).toUpperCase())}</div>
             <div><h4>${esc(x.building||x.name)}</h4><div class="code">${esc(x.code)} · ${esc(x.profile)}</div></div>
             <div style="margin-left:auto">${statusPill(x.status_label||x.status)}</div></div>
           <div class="sub" style="margin-top:8px">${esc(x.role||"")}</div>

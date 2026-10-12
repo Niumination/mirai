@@ -24,6 +24,7 @@ from datetime import datetime
 from pathlib import Path
 
 import store
+import avatars as avatars_mod
 
 HOME = Path.home()
 HERMES = Path(os.environ.get("HERMES_HOME", str(HOME / ".hermes"))).expanduser()
@@ -601,8 +602,8 @@ def _topics_from_yaml() -> list[dict]:
             "present": True,
             "aliases": [code, tid, name],
             "building": f"{name} Cabin",
-            "avatar": None,
-            "portrait": None,
+            "avatar": avatars_mod.pack_for(code),
+            "portrait": code.lower(),
             "last_active": None,
             "stats": {
                 "last_active": None, "avg_response_s": None,
@@ -677,6 +678,8 @@ def agents(force: bool = False) -> dict:
                       "thumb": f"/api/avatars/file?name={av['file_name']}", "kind": "upload"}
         elif av and av["kind"] == "library" and av["library_id"]:
             avatar = {"id": av["library_id"], "url": "", "thumb": "", "kind": "library"}
+        if not avatar:
+            avatar = avatars_mod.pack_for(code)
 
         last_active = stats.get("last_active")
         records.append({

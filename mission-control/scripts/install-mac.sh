@@ -58,6 +58,11 @@ if [ -f "$HERE/web/dashboard.html" ] && [ ! -f "$MIRAI_DIR/dashboard.html" ]; th
   cp "$HERE/web/dashboard.html" "$MIRAI_DIR/dashboard.html"
   echo "    starter console placed at $MIRAI_DIR/dashboard.html"
 fi
+if [ -d "$HERE/web/avatars" ]; then
+  mkdir -p "$MIRAI_DIR/mission-control/web/avatars"
+  cp -R "$HERE/web/avatars/." "$MIRAI_DIR/mission-control/web/avatars/"
+  echo "    pack portraits: $(ls "$MIRAI_DIR/mission-control/web/avatars"/*.png 2>/dev/null | wc -l | tr -d ' ') file(s)"
+fi
 
 echo "==> 3. Sanity: python3 present?"
 /usr/bin/python3 -c 'import sys, zoneinfo; print("    python", sys.version.split()[0])'

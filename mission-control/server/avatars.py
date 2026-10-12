@@ -31,6 +31,7 @@ from server import ApiError, Raw
 MIRAI_DIR = Path(os.environ.get("MIRAI_DIR", str(Path.home() / "mirai"))).expanduser()
 DATA_DIR = Path(os.environ.get("MIRAI_DATA_DIR", str(MIRAI_DIR / "data"))).expanduser()
 AVATARS_DIR = DATA_DIR / "avatars"
+PACK_DIR = Path(__file__).resolve().parent.parent / "web" / "avatars"
 
 MAX_BYTES = 4 * 1024 * 1024
 
@@ -63,6 +64,20 @@ def _decode_data_url(data: str) -> bytes:
     if len(blob) > MAX_BYTES:
         raise ApiError(413, "image is over the 4 MB limit")
     return blob
+
+
+def pack_for(code: str):
+    """Shipped bust in mission-control/web/avatars/{code}.png — TR → tr.png."""
+    if not code:
+        return None
+    stem = str(code).strip().lower()[:2]
+    if not re.match(r"^[a-z]{2}$", stem):
+        return None
+    path = PACK_DIR / f"{stem}.png"
+    if not path.is_file():
+        return None
+    url = f"/api/avatars/pack?code={stem}"
+    return {"id": stem, "url": url, "thumb": url, "kind": "pack"}
 
 
 def library(req, query, body):              # noqa: ANN001
@@ -145,9 +160,21 @@ def get_file(req, query, body):             # noqa: ANN001
     return Raw(path.read_bytes(), ctype, {"Cache-Control": "private, max-age=600"})
 
 
+def get_pack(req, query, body):             # noqa: ANN001
+    code = (query.get("code") or "").lower()
+    if not re.match(r"^[a-z]{2}$", code):
+        raise ApiError(400, "bad pack code")
+    root = PACK_DIR.resolve()
+    path = (PACK_DIR / f"{code}.png").resolve()
+    if path.parent != root or not path.is_file():
+        raise ApiError(404, "no pack portrait")
+    return Raw(path.read_bytes(), "image/png", {"Cache-Control": "public, max-age=86400"})
+
+
 def register(route, ApiError_):        # noqa: ANN001
     """Declare this module's routes. Called once by server.py at load time."""
     route("GET", "/api/avatars/library")(library)
     route("GET", "/api/avatars/operator")(operator)
     route("POST", "/api/avatars/set")(set_avatar)
     route("GET", "/api/avatars/file")(get_file)
+    route("GET", "/api/avatars/pack")(get_pack)
