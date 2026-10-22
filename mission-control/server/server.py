@@ -50,7 +50,7 @@ RAW_BODY_PATHS: set[str] = set()        # routes that receive raw bytes, not JSO
 # from the first card and every later module is picked up with no extra wiring.
 MODULES = (
     "settings", "avatars", "chat", "voice", "missions", "workforce", "cron",
-    "docs", "health", "traffic", "files", "terminal", "models",
+    "docs", "health", "traffic", "files", "terminal", "models", "house",
 )
 
 

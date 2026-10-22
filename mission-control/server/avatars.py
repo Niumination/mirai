@@ -67,17 +67,18 @@ def _decode_data_url(data: str) -> bytes:
 
 
 def pack_for(code: str):
-    """Shipped bust in mission-control/web/avatars/{code}.png — TR → tr.png."""
+    """Shipped bust: webp first, then png. TR → tr.webp / tr.png."""
     if not code:
         return None
     stem = str(code).strip().lower()[:2]
     if not re.match(r"^[a-z]{2}$", stem):
         return None
-    path = PACK_DIR / f"{stem}.png"
-    if not path.is_file():
+    if not (PACK_DIR / f"{stem}.webp").is_file() and not (PACK_DIR / f"{stem}.png").is_file():
         return None
     url = f"/api/avatars/pack?code={stem}"
-    return {"id": stem, "url": url, "thumb": url, "kind": "pack"}
+    still_path = PACK_DIR / f"{stem}-still.webp"
+    still = f"{url}&still=1" if still_path.is_file() else url
+    return {"id": stem, "url": url, "still": still, "thumb": url, "kind": "pack"}
 
 
 def library(req, query, body):              # noqa: ANN001
@@ -165,10 +166,19 @@ def get_pack(req, query, body):             # noqa: ANN001
     if not re.match(r"^[a-z]{2}$", code):
         raise ApiError(400, "bad pack code")
     root = PACK_DIR.resolve()
-    path = (PACK_DIR / f"{code}.png").resolve()
-    if path.parent != root or not path.is_file():
-        raise ApiError(404, "no pack portrait")
-    return Raw(path.read_bytes(), "image/png", {"Cache-Control": "public, max-age=86400"})
+    want_still = str(query.get("still") or "") in ("1", "true", "yes")
+    names = []
+    if want_still:
+        names.append(f"{code}-still.webp")
+    names.extend([f"{code}.webp", f"{code}.png"])
+    ctype_map = {".webp": "image/webp", ".png": "image/png"}
+    for name in names:
+        path = (PACK_DIR / name).resolve()
+        if path.parent != root or not path.is_file():
+            continue
+        ctype = ctype_map.get(path.suffix.lower(), "application/octet-stream")
+        return Raw(path.read_bytes(), ctype, {"Cache-Control": "public, max-age=86400"})
+    raise ApiError(404, "no pack portrait")
 
 
 def register(route, ApiError_):        # noqa: ANN001
