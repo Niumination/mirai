@@ -49,7 +49,14 @@ def _run(cmd: list[str], timeout: float = 4.0) -> str:
 
 
 def _sysctl(name: str) -> str:
-    return _run(["sysctl", "-n", name]).strip()
+    for candidate in ("/usr/sbin/sysctl", "sysctl"):
+        try:
+            out = _run([candidate, "-n", name])
+            if out.strip():
+                return out.strip()
+        except Exception:
+            continue
+    return ""
 
 
 def _uptime_s() -> float | None:
@@ -147,14 +154,14 @@ def _mac_memory() -> dict:
     total = int(_sysctl("hw.memsize") or 0)
     page = int(_sysctl("hw.pagesize") or 4096)
     stat = {"free": 0, "active": 0, "inactive": 0, "wired": 0, "compressed": 0}
-    for line in _run(["vm_stat"]).splitlines():
+    for line in _run(["/usr/bin/vm_stat"]).splitlines() or _run(["vm_stat"]).splitlines():
         m = re.match(r'"?([^":]+)"?:\s+([\d.]+)', line.strip())
         if not m:
             continue
         key = m.group(1).strip().lower().replace(" ", "").replace('"', "")
         val = int(float(m.group(2)))
         for k in stat:
-            if key.startswith(k):
+            if k in key:
                 stat[k] = val
     used = (stat["active"] + stat["wired"]) * page
     cache = (stat["inactive"] + stat["compressed"]) * page
