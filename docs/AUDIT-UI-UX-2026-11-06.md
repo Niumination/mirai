@@ -104,3 +104,8 @@
 - Single-file architecture — dipertahankan sesuai design decision MIRAI (no CDN)
 - 15 halaman dalam satu file — dipertahankan sesuai arsitektur
 - color-mix() — dipertahankan, fallback hardcoded tersedia
+
+## Final Fix — CSS Restoration (commit d242a9d)
+- Root cause: P5 split introduced brace imbalance (138/137), stray `</style>` tag, and dark-mode block overriding color tokens → text invisible, colors clashed.
+- Fix: restored clean CSS from git commit 001f1f2, re-applied P1 fixes, removed dark mode, deduplicated rules.
+- Result: 137/137 braces balanced, all endpoints 200, HTML/CSS/JS synced to mission-control/web/.
