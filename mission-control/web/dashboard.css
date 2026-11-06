@@ -100,9 +100,9 @@ h4{font-size:18px}
 .notice{margin:14px 0;padding:13px 16px;border-radius:var(--r-2xl);background:color-mix(in oklab, var(--warn) 12%, transparent);border:1px solid color-mix(in oklab, var(--warn) 38%, transparent);font-size:12.5px;line-height:1.6}
 .notice.bad{background:color-mix(in oklab, var(--bad) 10%, transparent);border-color:color-mix(in oklab, var(--bad) 40%, transparent)}
 .notice.good{background:color-mix(in oklab, var(--ok) 10%, transparent);border-color:color-mix(in oklab, var(--ok) 38%, transparent)}
-.empty{padding:26px 8px;text-align:center;font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:.16em;text-transform:uppercase;color:var(--muted-fg)}
 .loading{padding:26px 8px;text-align:center;font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:.16em;text-transform:uppercase;color:var(--muted-fg);animation:pulse 1.5s ease-in-out infinite}
 @keyframes pulse{0%,100%{opacity:.4}50%{opacity:1}}
+.empty{padding:26px 8px;text-align:center;font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:.16em;text-transform:uppercase;color:var(--muted-fg)}
 .agents{display:grid;gap:14px;grid-template-columns:repeat(auto-fit,minmax(280px,1fr))}
 .agent h4{margin:0;font-family:'Inter',sans-serif;font-size:15.5px;letter-spacing:0;text-transform:none;font-weight:600}
 .avatar{width:56px;height:56px;flex:0 0 56px;border-radius:18px;overflow:hidden;background:var(--ink);color:var(--cream);display:grid;place-items:center;font-family:'Instrument Serif',serif;font-size:22px}
@@ -152,23 +152,6 @@ th,td{padding:8px 6px;border-bottom:1px solid var(--border);text-align:left}
 }
 @media (prefers-reduced-motion:reduce){
   *,*::before,*::after{animation-duration:.01ms !important;animation-iteration-count:1 !important;transition-duration:.01ms !important;scroll-behavior:auto !important}
-}
-@media (prefers-color-scheme:dark){
-:root{
-  --ink:oklch(0.97 0.012 75);
-  --ink-2:oklch(0.93 0.012 75);
-  --cream:oklch(0.16 0.012 50);
-  --surface:oklch(0.22 0.014 50);
-  --surface-2:oklch(0.28 0.016 50);
-  --border:oklch(0.32 0.016 50);
-  --muted-fg:oklch(0.72 0.02 60);
-  --ember:oklch(0.72 0.20 38);
-  --ember-soft:oklch(0.82 0.14 50);
-}
-body{color:var(--ink);background:var(--cream)}
-.app{background:var(--ink)}
-.brand-col{background:var(--ink-2)}
-.main{background:var(--cream)}
 }
 @media (max-width:768px){
   .topbar{flex-direction:column;align-items:flex-start;gap:8px}
