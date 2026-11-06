@@ -133,6 +133,8 @@ h4{font-size:18px}
 .notice.bad{background:color-mix(in oklab, var(--bad) 10%, transparent);border-color:color-mix(in oklab, var(--bad) 40%, transparent)}
 .notice.good{background:color-mix(in oklab, var(--ok) 10%, transparent);border-color:color-mix(in oklab, var(--ok) 38%, transparent)}
 .empty{padding:26px 8px;text-align:center;font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:.16em;text-transform:uppercase;color:var(--muted-fg)}
+.loading{padding:26px 8px;text-align:center;font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:.16em;text-transform:uppercase;color:var(--muted-fg);animation:pulse 1.5s ease-in-out infinite}
+@keyframes pulse{0%,100%{opacity:.4}50%{opacity:1}}
 .agents{display:grid;gap:14px;grid-template-columns:repeat(auto-fit,minmax(280px,1fr))}
 .agent h4{margin:0;font-family:'Inter',sans-serif;font-size:15.5px;letter-spacing:0;text-transform:none;font-weight:600}
 .avatar{width:56px;height:56px;flex:0 0 56px;border-radius:18px;overflow:hidden;background:var(--ink);color:var(--cream);display:grid;place-items:center;font-family:'Instrument Serif',serif;font-size:22px}
@@ -228,7 +230,7 @@ body{color:var(--ink);background:var(--cream)}
     <div class="rail-foot" id="rail-foot">Bound to <b>127.0.0.1</b></div>
   </aside>
 
-  <main class="main" id="main">
+  <main class="main" id="main" role="main">
     <div class="topbar">
       <p class="hello" id="hello">…</p>
       <div class="clock"><b id="clock">--:--</b><small id="tzlabel"></small></div>
@@ -236,7 +238,7 @@ body{color:var(--ink);background:var(--cream)}
     <div class="pages scroll" id="pages"></div>
   </main>
 </div>
-<div class="toast" id="toast"></div>
+<div class="toast" id="toast" aria-live="polite" aria-atomic="true"></div>
 <script>
 
 "use strict";
