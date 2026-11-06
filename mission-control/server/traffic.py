@@ -98,7 +98,7 @@ def traffic(req, query, body):              # noqa: ANN001
         for alias, col in (("title", title_col), ("brief", body_col), ("to", assignee_col),
                            ("status", status_col), ("created_at", created_col),
                            ("claimed_at", claimed_col), ("done_at", done_col)):
-            select.append(f"t.{col} AS {alias}" if col else f"NULL AS {alias}")
+            select.append(f't.{col} AS "{alias}"' if col else f'NULL AS "{alias}"')
         select.append(f"t.{parent_col} AS parent" if parent_col else "NULL AS parent")
 
         sql = f"SELECT {', '.join(select)} FROM tasks t"
