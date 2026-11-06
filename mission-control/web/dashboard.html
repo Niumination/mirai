@@ -183,6 +183,23 @@ th,td{padding:8px 6px;border-bottom:1px solid var(--border);text-align:left}
 @media (prefers-reduced-motion:reduce){
   *,*::before,*::after{animation-duration:.01ms !important;animation-iteration-count:1 !important;transition-duration:.01ms !important;scroll-behavior:auto !important}
 }
+@media (prefers-color-scheme:dark){
+:root{
+  --ink:oklch(0.97 0.012 75);
+  --ink-2:oklch(0.93 0.012 75);
+  --cream:oklch(0.16 0.012 50);
+  --surface:oklch(0.22 0.014 50);
+  --surface-2:oklch(0.28 0.016 50);
+  --border:oklch(0.32 0.016 50);
+  --muted-fg:oklch(0.72 0.02 60);
+  --ember:oklch(0.72 0.20 38);
+  --ember-soft:oklch(0.82 0.14 50);
+}
+body{color:var(--ink);background:var(--cream)}
+.app{background:var(--ink)}
+.brand-col{background:var(--ink-2)}
+.main{background:var(--cream)}
+}
 @media (pointer:coarse){button.mosaic:hover,.mosaic:hover{transform:none}}
 </style>
 
