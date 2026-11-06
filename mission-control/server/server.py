@@ -238,8 +238,18 @@ def _gate_headers(handler) -> dict:
         return {}
 
 
+def _serve_asset(handler: BaseHTTPRequestHandler, name: str) -> None:
+    """Serve dashboard.css or dashboard.js from MIRAI_DIR."""
+    path = MIRAI_DIR / name
+    if not path.exists():
+        handler._error(404, f"{name} not found")
+        return
+    ct = "text/css; charset=utf-8" if name.endswith(".css") else "application/javascript; charset=utf-8"
+    data = path.read_bytes()
+    _send_bytes(handler, 200, data, ct, {"Cache-Control": "no-cache"}, head_only=handler.command == "HEAD")
+
+
 def _serve_spa(handler: BaseHTTPRequestHandler) -> None:
-    """GET / and GET /index.html: the dashboard, gzipped when accepted."""
     path = _dashboard_file()
     if not path.exists():
         # Honest placeholder rather than a 404 the user reads as a broken build.
@@ -445,6 +455,11 @@ class Handler(BaseHTTPRequestHandler):
         # Hand mode loads its models relative to the page: /lib/mediapipe/...
         if path.startswith("/lib/") and method in ("GET", "HEAD"):
             _serve_lib(self, path[len("/lib/"):])
+            return
+
+        # Static assets for the dashboard (CSS + JS, split out for maintainability).
+        if path in ("/dashboard.css", "/dashboard.js") and method in ("GET", "HEAD"):
+            _serve_asset(self, path.lstrip("/"))
             return
 
         fn = ROUTES.get((method, path))
