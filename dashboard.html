@@ -93,6 +93,9 @@ a{color:var(--ember)}
 .hero{margin:8px 0 20px;padding:24px 28px;border-radius:24px;background:var(--ink);color:var(--cream)}
 .hero h2{margin:0 0 8px;font-family:'Instrument Serif',serif;font-size:clamp(28px,4vw,44px);font-weight:400;letter-spacing:-.03em;line-height:1.05}
 .hero h2 span{font-style:italic;color:var(--ember-soft)}
+.hero .hero-inner{display:grid;grid-template-columns:1.2fr 1fr;gap:24px;align-items:start}
+.hero .actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:16px}
+@media (max-width:880px){.hero .hero-inner{grid-template-columns:1fr}}
 .hero .lede,.lede{margin:0;font-size:14px;line-height:1.55;max-width:52ch;color:oklch(0.97 0.012 75 / .7)}
 .page .lede{color:var(--muted-fg)}
 .kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:12px;margin:16px 0}
