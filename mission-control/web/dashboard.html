@@ -7,7 +7,7 @@
 <meta name="description" content="Jendela status Niumination: sepuluh kursi Telegram, wiki, lima cron. Internal.">
 <meta name="robots" content="noindex, nofollow">
 <meta name="theme-color" content="#2a2018">
-<meta name="color-scheme" content="light">
+<meta name="color-scheme" content="light dark">
 <!--
   MIRAI Mission Control — the console.
 
@@ -39,7 +39,7 @@
   --surface: oklch(0.93 0.012 75);
   --surface-2: oklch(0.89 0.014 70);
   --border: oklch(0.85 0.012 70);
-  --muted-fg: oklch(0.38 0.02 60);
+  --muted-fg: oklch(0.32 0.02 60);
   --ok: oklch(0.72 0.15 145);
   --warn: oklch(0.76 0.14 85);
   --bad: oklch(0.62 0.19 27);
@@ -83,7 +83,7 @@ a{color:var(--ember)}
 .nav button.on{background:var(--ember);color:var(--cream);border-color:var(--ember)}
 .rail-foot{font-size:11px;color:oklch(0.97 0.012 75 / .45)}
 .main{flex:1;min-width:0;margin:8px 8px 8px 0;background:var(--cream);border-radius:28px;display:flex;flex-direction:column;overflow:hidden}
-.topbar{display:flex;justify-content:space-between;align-items:flex-end;padding:20px 28px 8px;gap:16px}
+.topbar{display:flex;justify-content:space-between;align-items:center;padding:20px 28px 8px;gap:16px}
 .hello{margin:0;font-family:'Instrument Serif',serif;font-size:clamp(22px,2.4vw,32px);line-height:1.1;letter-spacing:-.02em}
 .clock{background:var(--ink);color:var(--cream);border-radius:999px;padding:10px 16px;text-align:right}
 .clock b{display:block;font-family:'JetBrains Mono',monospace;font-size:14px}
@@ -166,6 +166,7 @@ button.mosaic,.mosaic{
 input,textarea,select{font:inherit;border:1px solid var(--border);border-radius:12px;padding:10px 12px;background:#fff;color:var(--ink)}
 table{width:100%;border-collapse:collapse;font-size:13px}
 th,td{padding:8px 6px;border-bottom:1px solid var(--border);text-align:left}
+@media (max-width:768px){.kpis{grid-template-columns:repeat(2,1fr)}.topbar{flex-direction:column;align-items:flex-start;gap:8px}.hello{font-size:22px}.pages{padding:8px 16px 40px}.term{height:40vh}.bubble{max-width:95%}}
 @media (max-width:880px){
   body,.app{display:block;overflow:auto;height:auto}
   .brand-col{width:auto;flex:none;max-height:none}
@@ -194,7 +195,7 @@ th,td{padding:8px 6px;border-bottom:1px solid var(--border);text-align:left}
     <div class="rail-foot" id="rail-foot">Bound to <b>127.0.0.1</b></div>
   </aside>
 
-  <main class="main" id="main">
+  <main class="main" id="main" role="main">
     <div class="topbar">
       <p class="hello" id="hello">…</p>
       <div class="clock"><b id="clock">--:--</b><small id="tzlabel"></small></div>
@@ -202,7 +203,7 @@ th,td{padding:8px 6px;border-bottom:1px solid var(--border);text-align:left}
     <div class="pages scroll" id="pages"></div>
   </main>
 </div>
-<div class="toast" id="toast"></div>
+<div class="toast" id="toast" aria-live="polite" role="status"></div>
 <script>
 
 "use strict";
