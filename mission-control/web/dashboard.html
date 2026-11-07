@@ -7,7 +7,7 @@
 <meta name="description" content="Jendela status Niumination: sepuluh kursi Telegram, wiki, lima cron. Internal.">
 <meta name="robots" content="noindex, nofollow">
 <meta name="theme-color" content="#2a2018">
-<meta name="color-scheme" content="light dark">
+<meta name="color-scheme" content="light">
 <!--
   MIRAI Mission Control — the console.
 
@@ -83,28 +83,22 @@ a{color:var(--ember)}
 .nav button.on{background:var(--ember);color:var(--cream);border-color:var(--ember)}
 .rail-foot{font-size:11px;color:oklch(0.97 0.012 75 / .45)}
 .main{flex:1;min-width:0;margin:8px 8px 8px 0;background:var(--cream);border-radius:28px;display:flex;flex-direction:column;overflow:hidden}
-.topbar{display:flex;justify-content:space-between;align-items:center;padding:20px 28px 8px;gap:16px}
+.topbar{display:flex;justify-content:space-between;align-items:flex-end;padding:20px 28px 8px;gap:16px}
 .hello{margin:0;font-family:'Instrument Serif',serif;font-size:clamp(22px,2.4vw,32px);line-height:1.1;letter-spacing:-.02em}
 .clock{background:var(--ink);color:var(--cream);border-radius:999px;padding:10px 16px;text-align:right}
 .clock b{display:block;font-family:'JetBrains Mono',monospace;font-size:14px}
 .clock small{color:oklch(0.97 0.012 75 / .5);font-size:10px;letter-spacing:.12em;text-transform:uppercase}
 .pages{flex:1;overflow:auto;padding:8px 28px 40px}
-.page{max-width:1100px;margin:0 auto}
-.wordmark{margin-bottom:16px}
-.g{display:inline-block;width:1.2em;text-align:center;margin-right:6px;opacity:.7}
+.page{max-width:1100px}
 .hero{margin:8px 0 20px;padding:24px 28px;border-radius:24px;background:var(--ink);color:var(--cream)}
 .hero h2{margin:0 0 8px;font-family:'Instrument Serif',serif;font-size:clamp(28px,4vw,44px);font-weight:400;letter-spacing:-.03em;line-height:1.05}
 .hero h2 span{font-style:italic;color:var(--ember-soft)}
-.hero .hero-inner{display:grid;grid-template-columns:1.2fr 1fr;gap:24px;align-items:start}
-.hero .actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:16px}
-@media (max-width:880px){.hero .hero-inner{grid-template-columns:1fr}}
 .hero .lede,.lede{margin:0;font-size:14px;line-height:1.55;max-width:52ch;color:oklch(0.97 0.012 75 / .7)}
 .page .lede{color:var(--muted-fg)}
 .kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:12px;margin:16px 0}
 .kpi,.card{background:var(--surface);border:1px solid var(--border);border-radius:var(--r-3xl);padding:16px 18px}
 .kpi b,.metric{display:block;font-size:28px;font-weight:600;letter-spacing:-.03em}
 .kpi small,.sub{color:var(--muted-fg);font-size:12px}
-.kpi span{display:block;margin-top:4px;font-size:11px;color:var(--muted-fg);line-height:1.4}
 .grid{display:grid;gap:12px}
 .g2{grid-template-columns:repeat(auto-fit,minmax(240px,1fr))}
 .g3{grid-template-columns:repeat(auto-fit,minmax(180px,1fr))}
@@ -133,8 +127,6 @@ h4{font-size:18px}
 .notice.bad{background:color-mix(in oklab, var(--bad) 10%, transparent);border-color:color-mix(in oklab, var(--bad) 40%, transparent)}
 .notice.good{background:color-mix(in oklab, var(--ok) 10%, transparent);border-color:color-mix(in oklab, var(--ok) 38%, transparent)}
 .empty{padding:26px 8px;text-align:center;font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:.16em;text-transform:uppercase;color:var(--muted-fg)}
-.loading{padding:26px 8px;text-align:center;font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:.16em;text-transform:uppercase;color:var(--muted-fg);animation:pulse 1.5s ease-in-out infinite}
-@keyframes pulse{0%,100%{opacity:.4}50%{opacity:1}}
 .agents{display:grid;gap:14px;grid-template-columns:repeat(auto-fit,minmax(280px,1fr))}
 .agent h4{margin:0;font-family:'Inter',sans-serif;font-size:15.5px;letter-spacing:0;text-transform:none;font-weight:600}
 .avatar{width:56px;height:56px;flex:0 0 56px;border-radius:18px;overflow:hidden;background:var(--ink);color:var(--cream);display:grid;place-items:center;font-family:'Instrument Serif',serif;font-size:22px}
@@ -185,34 +177,6 @@ th,td{padding:8px 6px;border-bottom:1px solid var(--border);text-align:left}
 @media (prefers-reduced-motion:reduce){
   *,*::before,*::after{animation-duration:.01ms !important;animation-iteration-count:1 !important;transition-duration:.01ms !important;scroll-behavior:auto !important}
 }
-@media (prefers-color-scheme:dark){
-:root{
-  --ink:oklch(0.97 0.012 75);
-  --ink-2:oklch(0.93 0.012 75);
-  --cream:oklch(0.16 0.012 50);
-  --surface:oklch(0.22 0.014 50);
-  --surface-2:oklch(0.28 0.016 50);
-  --border:oklch(0.32 0.016 50);
-  --muted-fg:oklch(0.72 0.02 60);
-  --ember:oklch(0.72 0.20 38);
-  --ember-soft:oklch(0.82 0.14 50);
-}
-body{color:var(--ink);background:var(--cream)}
-.app{background:var(--ink)}
-.brand-col{background:var(--ink-2)}
-.main{background:var(--cream)}
-}
-@media (max-width:768px){
-  .topbar{flex-direction:column;align-items:flex-start;gap:8px}
-  .clock{align-self:flex-end}
-  .kpis{grid-template-columns:repeat(2,1fr)}
-  .g2,.g3{grid-template-columns:1fr}
-  .split{grid-template-columns:1fr}
-  .term{height:40vh}
-  .bubble{max-width:95%}
-  .hero-inner{grid-template-columns:1fr}
-  .fleet-mosaic{grid-template-columns:repeat(2,1fr)}
-}
 @media (pointer:coarse){button.mosaic:hover,.mosaic:hover{transform:none}}
 </style>
 
@@ -230,7 +194,7 @@ body{color:var(--ink);background:var(--cream)}
     <div class="rail-foot" id="rail-foot">Bound to <b>127.0.0.1</b></div>
   </aside>
 
-  <main class="main" id="main" role="main">
+  <main class="main" id="main">
     <div class="topbar">
       <p class="hello" id="hello">…</p>
       <div class="clock"><b id="clock">--:--</b><small id="tzlabel"></small></div>
@@ -238,7 +202,7 @@ body{color:var(--ink);background:var(--cream)}
     <div class="pages scroll" id="pages"></div>
   </main>
 </div>
-<div class="toast" id="toast" aria-live="polite" aria-atomic="true"></div>
+<div class="toast" id="toast"></div>
 <script>
 
 "use strict";
