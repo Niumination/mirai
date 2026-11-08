@@ -79,6 +79,8 @@ CRON_WANTED = (
 CRON_FORBIDDEN = ("wiki-mail-sweep", "wiki-offsite")
 
 TOPICS_MAP = Path(__file__).resolve().parents[2] / "fleet" / "plugins" / "telegram_topic_profiles" / "topics.json"
+# t.me/c/<id> = supergroup chat_id without the -100 prefix.
+TELEGRAM_C = "4204696417"
 
 
 def _job_names() -> set[str]:
@@ -135,6 +137,7 @@ def snapshot() -> dict:
         if s["thread_id"] == "1":
             row["in_yaml"] = bool(roster._hermes_config_text())
         row["avatar"] = avatars_mod.pack_for(s["code"])
+        row["telegram_url"] = f"https://t.me/c/{TELEGRAM_C}/{s['thread_id']}"
         seats.append(row)
 
     chat_title, plugin = "Niu-MissionControl", "off"

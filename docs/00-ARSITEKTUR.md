@@ -1,5 +1,11 @@
 # MIRAI — arsitektur
 
+**Poros A (kunci pemilik):** jendela 10 topik + wiki + 5 cron. Diagram di bawah
+masih menggambarkan *paket* NEXORA (Executor+3, 15 surface, 7 cron). Itu **bukan**
+yang dipasang. Lihat `docs/ADOPT-MAC.md` dan `docs/NEXORA-PLAYBOOK.md`.
+
+Diagram paket sumber (arsip):
+
 Tiga lapis, dibangun berurutan, masing-masing berguna sendiri dan menjadi prasyarat
 lapis berikutnya.
 

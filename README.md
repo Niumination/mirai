@@ -1,15 +1,16 @@
-# MIRAI — paket siap-deploy untuk ekosistem niumination
+# MIRAI — jendela Niumination
 
-Semua yang ada di folder Drive **Mirai-Mission-Control** dikerjakan di sini sebagai
-**kode**, bukan sebagai daftar prompt. Tinggal install ke Mac-nya Hermes.
+Bukan NEXORA, bukan armada 3 spesialis. **Dapur** = satu profil Hermes + 10 topik Telegram
++ wiki Desktop + 5 cron. **Jendela** (`:8800`) hanya membaca. Plugin Telegram paket **OFF**.
+`create-fleet.sh` / `install-habits.sh` di folder `fleet/` adalah **artefak terlarang**.
 
-Tiga lapis, dibangun berurutan, masing-masing berguna sendiri:
+| Yang hidup | Isi |
+| --- | --- |
+| 10 kursi | TR/RS/BD/QA/KR/SB/AS/CR/ED/OR — `docs/TOPIK-NIUMINATION.md`, `/api/house` |
+| Wiki | `$HOME/Desktop/Niumination/wiki` (fallback `CREW_WIKI_DIR` / `~/wiki`), 9 verb, **5** cron malam |
+| Mission Control | Python stdlib, `com.mirai.*`, konsol satu file, ink/krim/bara, tanpa CDN |
 
-| Lapis | Isi | Folder |
-| --- | --- | --- |
-| **1. Memori (Agent OS wiki)** | wiki markdown di `~/wiki`, perintah `wiki` 9 verb (dengan lock + penolakan + commit per-verb), skill `wiki` & `youtube-transcript`, pipeline `raw/_inbox`, 7 cron job malam, dashboard wiki | `memory/` |
-| **2. Fleet (profil + routing Telegram)** | Executor + 3 spesialis (Research, Content Writer, Developer), SOUL masing-masing, installer habits, plugin `telegram_topic_profiles` | `fleet/` |
-| **3. Mission Control** | backend Python 3 **stdlib only**, 54 route, 15 surface, LaunchAgent, backup harian, konsol dashboard satu file | `mission-control/` |
+Folder `memory/` dan `fleet/` tetap di tree (peta prompt NEXORA). **Jangan dipasang** sebagai produk.
 
 Dokumen pendamping:
 
@@ -33,8 +34,10 @@ bash mission-control/scripts/install-mac.sh     # :8800 + LaunchAgent com.mirai.
 # wiki: skeleton → ~/wiki, wiki.sh di PATH, 5 cron (bukan mail-sweep/offsite)
 ```
 
-Wiki: salin `memory/wiki-skeleton/` → `~/wiki/`, install `memory/skill/wiki/wiki.sh`
-sebagai `wiki` di PATH, lalu jalankan `wiki index`.
+Wiki hidup: `$HOME/Desktop/Niumination/wiki`. Skeleton paket hanya jika folder itu belum ada.
+Jangan `hermes cron create` untuk mail-sweep / offsite.
+
+Playbook visual vs video NEXORA: `docs/NEXORA-PLAYBOOK.md`.
 
 ## Yang TIDAK bisa saya kirim sebagai file
 
