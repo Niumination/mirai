@@ -51,6 +51,7 @@ RAW_BODY_PATHS: set[str] = set()        # routes that receive raw bytes, not JSO
 MODULES = (
     "settings", "avatars", "chat", "voice", "missions", "workforce", "cron",
     "docs", "health", "traffic", "files", "terminal", "models", "house",
+    "wiki_view",
 )
 
 

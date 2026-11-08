@@ -224,7 +224,7 @@ let STATE = { settings:{}, agents:[], missions:[], health:null, greeting:null };
 const I18N = {
   id: {
     "nav.cockpit":"Status","nav.agents":"Sepuluh kursi","nav.deploy":"Pasang agen","nav.city":"Kota agen",
-    "nav.missions":"Misi","nav.chat":"Obrolan","nav.docs":"Dokumen","nav.schedule":"Jadwal",
+    "nav.missions":"Misi","nav.chat":"Obrolan","nav.docs":"Dokumen","nav.wiki":"Wiki","nav.schedule":"Jadwal",
     "nav.health":"Kesehatan","nav.files":"Berkas","nav.terminal":"Terminal","nav.voice":"Suara",
     "nav.hand":"Mode tangan","nav.integrations":"Integrasi","nav.settings":"Pengaturan",
     "grp.fleet":"Rumah","grp.work":"Jejak","grp.machine":"Mesin",
@@ -233,7 +233,7 @@ const I18N = {
   },
   en: {
     "nav.cockpit":"Status","nav.agents":"Ten seats","nav.deploy":"Deploy agent","nav.city":"Agent City",
-    "nav.missions":"Missions","nav.chat":"Chat","nav.docs":"Docs","nav.schedule":"Schedule",
+    "nav.missions":"Missions","nav.chat":"Chat","nav.docs":"Docs","nav.wiki":"Wiki","nav.schedule":"Schedule",
     "nav.health":"Health","nav.files":"Files","nav.terminal":"Terminal","nav.voice":"Voice",
     "nav.hand":"Hand mode","nav.integrations":"Integrations","nav.settings":"Settings",
     "grp.fleet":"House","grp.work":"Trace","grp.machine":"Machine",
@@ -277,15 +277,16 @@ const PAGES = [
   {id:"deploy",    labelKey:"nav.deploy",       glyph:"+",        groupKey:"grp.fleet", hidden:true},
   {id:"city",      labelKey:"nav.city",         glyph:"\u25a6", groupKey:"grp.fleet", hidden:true},
   {id:"missions",  labelKey:"nav.missions",     glyph:"\u25ce", groupKey:"grp.work", hidden:true},
-  {id:"chat",      labelKey:"nav.chat",         glyph:"\u2709", groupKey:"grp.work"},
+  {id:"chat",      labelKey:"nav.chat",         glyph:"\u2709", groupKey:"grp.work", hidden:true},
   {id:"docs",      labelKey:"nav.docs",         glyph:"\u25a4", groupKey:"grp.work", hidden:true},
+  {id:"wiki",      labelKey:"nav.wiki",         glyph:"\u25a4", groupKey:"grp.work"},
   {id:"schedule",  labelKey:"nav.schedule",     glyph:"\u25f7", groupKey:"grp.work"},
   {id:"health",    labelKey:"nav.health",       glyph:"\u2318", groupKey:"grp.machine"},
   {id:"files",     labelKey:"nav.files",        glyph:"\u25a3", groupKey:"grp.machine"},
   {id:"terminal",  labelKey:"nav.terminal",     glyph:"\u25b7", groupKey:"grp.machine", hidden:true},
   {id:"voice",     labelKey:"nav.voice",        glyph:"\u25cd", groupKey:"grp.machine", hidden:true},
   {id:"hand",      labelKey:"nav.hand",         glyph:"\u2733", groupKey:"grp.machine", hidden:true},
-  {id:"integrations", labelKey:"nav.integrations", glyph:"\u25c7", groupKey:"grp.machine"},
+  {id:"integrations", labelKey:"nav.integrations", glyph:"\u25c7", groupKey:"grp.machine", hidden:true},
   {id:"settings",  labelKey:"nav.settings",     glyph:"\u2699", groupKey:"grp.machine"},
 ];
 
@@ -459,6 +460,7 @@ function seatCard(s){
       <div style="margin-left:auto"><span class="pill ${pill}">${esc(yaml)}</span></div></div>
     <p style="margin:12px 0 6px;font-size:14px;line-height:1.45">${esc(s.job||"")}</p>
     <div class="sub">${esc(s.not_this||"")}</div>
+    ${s.telegram_url?`<div style="margin-top:8px"><a href="${esc(s.telegram_url)}" target="_blank" rel="noopener" class="pill good" style="text-decoration:none">Telegram #${esc(s.thread_id)}</a></div>`:""}
   </div>`;
 }
 function agentCard(a){
@@ -822,6 +824,30 @@ RENDERERS.docs = async () => {
       if(!confirm("Delete "+b.dataset.docDel+"? It is moved to docs-deleted/ with a timestamp, not erased.")) return;
       try{ await api("/api/docs/delete",{method:"POST",body:{id:b.dataset.docDel}});
         toast("deleted (kept in docs-deleted/)"); RENDERED.delete("docs"); show("docs"); }catch(e){ toast(e.message,false); } });
+  }catch(e){ fail(id,e); }
+};
+
+/* ----------------------------- Wiki -------------------------------------- */
+RENDERERS.wiki = async () => {
+  const id="wiki";
+  try{
+    const d = await api("/api/wiki");
+    const docs = d.documents||[];
+    body(id, `
+      <h2>Wiki</h2>
+      <p class="lede">Read-only window onto the Niumination wiki at <code>${esc(d.path||"~/wiki")}</code>. ${d.read_only?"Read-only.":""}</p>
+      <div class="card"><table><thead><tr><th>Path</th><th>Size</th><th>Updated</th><th></th></tr></thead><tbody>
+        ${docs.map(x=>`<tr>
+          <td class="mono">${esc(x.path)}</td><td class="sub">${nf(x.size)} B</td>
+          <td class="sub">${ago(x.mtime)}</td>
+          <td><button class="btn" data-wiki-read="${esc(x.id)}">Read</button></td></tr>`).join("")
+          || "<tr><td colspan=4 class='empty'>no pages yet</td></tr>"}
+      </tbody></table></div>
+      <div id="wiki-view"></div>`);
+    $$("[data-wiki-read]").forEach(b=>b.onclick=async()=>{
+      try{ const r=await api("/api/wiki/page?id="+encodeURIComponent(b.dataset.wikiRead));
+        $("#wiki-view").innerHTML=`<h3>${esc(r.id)}</h3><pre>${esc(r.text||"")}</pre>`; }
+      catch(e){ toast(e.message,false); } });
   }catch(e){ fail(id,e); }
 };
 
