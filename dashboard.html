@@ -89,7 +89,8 @@ a{color:var(--ember)}
 .clock b{display:block;font-family:'JetBrains Mono',monospace;font-size:14px}
 .clock small{color:oklch(0.97 0.012 75 / .5);font-size:10px;letter-spacing:.12em;text-transform:uppercase}
 .pages{flex:1;overflow:auto;padding:8px 28px 40px}
-.page{max-width:1100px}
+.page{display:none;max-width:1100px}
+.page.on{display:block}
 .hero{margin:8px 0 20px;padding:24px 28px;border-radius:24px;background:var(--ink);color:var(--cream)}
 .hero h2{margin:0 0 8px;font-family:'Instrument Serif',serif;font-size:clamp(28px,4vw,44px);font-weight:400;letter-spacing:-.03em;line-height:1.05}
 .hero h2 span{font-style:italic;color:var(--ember-soft)}
@@ -279,7 +280,7 @@ const PAGES = [
   {id:"city",      labelKey:"nav.city",         glyph:"\u25a6", groupKey:"grp.fleet", hidden:true},
   {id:"missions",  labelKey:"nav.missions",     glyph:"\u25ce", groupKey:"grp.work", hidden:true},
   {id:"chat",      labelKey:"nav.chat",         glyph:"\u2709", groupKey:"grp.work", hidden:true},
-  {id:"docs",      labelKey:"nav.docs",         glyph:"\u25a4", groupKey:"grp.work"},
+  {id:"docs",      labelKey:"nav.docs",         glyph:"\u25a4", groupKey:"grp.work", hidden:true},
   {id:"wiki",      labelKey:"nav.wiki",         glyph:"\u25a4", groupKey:"grp.work"},
   {id:"schedule",  labelKey:"nav.schedule",     glyph:"\u25f7", groupKey:"grp.work"},
   {id:"health",    labelKey:"nav.health",       glyph:"\u2318", groupKey:"grp.machine"},
