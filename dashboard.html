@@ -147,6 +147,7 @@ h4{font-size:18px}
 .toast div.bad{border:1px solid color-mix(in oklab, var(--bad) 60%, transparent)}
 .fleet-mosaic{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;margin:0 0 8px}
 @media (min-width:900px){.fleet-mosaic{grid-template-columns:repeat(5,minmax(0,1fr))}}
+a.mosaic{text-decoration:none;color:inherit}
 button.mosaic,.mosaic{
   appearance:none;font:inherit;text-align:left;display:flex;flex-direction:column;justify-content:flex-end;
   width:100%;min-height:180px;padding:18px 16px;margin:0;border-radius:24px;cursor:pointer;position:relative;overflow:hidden;
@@ -436,18 +437,20 @@ function faceUrl(a){
 function mosaicTile(a){
   const code=esc((a.code||"??").slice(0,2));
   const live = a.status==="ready"||a.status==="working"||a.status==="active";
-  const go = "agents";
   const url = faceUrl(a);
   const img = url ? `<img class="faceimg" src="${esc(url)}" alt="${esc(a.name||a.code||'')}">` : "";
   const yaml = a.in_yaml===true ? (LANG==="en"?"in yaml":"di yaml") : (a.in_yaml===false ? (LANG==="en"?"not in yaml":"belum di yaml") : (a.status_label||a.status||""));
-  return `<button type="button" class="mosaic" onclick="show('${go}')">
+  const href = a.telegram_url || (a.thread_id ? ("https://t.me/c/4204696417/"+a.thread_id) : "#");
+  const open = LANG==="en"?"Open in Telegram":"Buka di Telegram";
+  return `<a class="mosaic" href="${esc(href)}" target="_blank" rel="noopener noreferrer" title="${esc(open)}">
     ${img}
     <i class="live ${live||a.in_yaml?"":"off"}"></i>
     <div class="xl">${code}</div>
     <div class="nm">${esc(a.name||a.short||"")}</div>
     <div class="th">${esc(a.thread_id? "#"+a.thread_id : "")}${yaml? " · "+esc(yaml):""}</div>
-  </button>`;
+  </a>`;
 }
+
 function seatCard(s){
   const url=faceUrl(s);
   const face=url?`<img src="${esc(url)}" alt="${esc(s.name||s.code||'')}">`:esc(s.code||"");
@@ -498,7 +501,8 @@ RENDERERS.agents = async (ctx) => {
     body(id, `
       <h2>Sepuluh kursi</h2>
       <p class="lede">Setiap kursi satu pekerjaan yang tidak boleh dicuri kursi lain. Kerja tetap di Telegram. Di sini hanya peta.</p>
-      <div class="agents">${(STATE.house&&STATE.house.seats?STATE.house.seats:[]).map(seatCard).join("")}</div>
+      <p><input id="seat-q" type="search" placeholder="Cari kursi" style="max-width:280px"></p>
+      <div class="agents" id="seat-list">${(STATE.house&&STATE.house.seats?STATE.house.seats:[]).map(seatCard).join("")}</div>
       <h3>Ganti foto (opsional)</h3>
       <div class="card">
         <div class="sub" style="margin-bottom:8px">Foto unggahan opsional di <code>~/mirai/data/avatars/</code>. Tanpa unggahan, dipakai bust paket. Reset = kembali ke bust, bukan identicon.</div>
@@ -525,6 +529,15 @@ RENDERERS.agents = async (ctx) => {
       try{ await api("/api/avatars/set", {method:"POST", body:{owner:$("#av-agent").value, reset:true}});
         toast("reset"); RENDERED.delete("agents"); show("agents"); }catch(e){ toast(e.message,false); }
     };
+    const qel = $("#seat-q");
+    if(qel){
+      qel.addEventListener("input", () => {
+        const q = (qel.value||"").toLowerCase();
+        document.querySelectorAll("#seat-list .card.agent").forEach(card => {
+          card.style.display = card.textContent.toLowerCase().includes(q) ? "" : "none";
+        });
+      });
+    }
   }catch(e){ fail(id,e); }
 };
 
