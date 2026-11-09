@@ -12,6 +12,9 @@ HERE="$(cd "$(dirname "$0")/.." && pwd)"
 export HOME=/tmp/fakehome
 export MIRAI_DIR=/tmp/fakehome/mirai
 export MIRAI_KANBAN=off
+# HERMES_HOME from the invoking shell would make fixture.sh refuse (it checks
+# $HERMES_HOME first) and point the server at the real crew. Tests are hermetic:
+unset HERMES_HOME
 # A test run must leave the tree as it found it: no __pycache__ beside the modules.
 export PYTHONDONTWRITEBYTECODE=1
 
