@@ -99,8 +99,9 @@ a{color:var(--ember)}
 .hero .lede,.lede{margin:0;font-size:14px;line-height:1.55;max-width:52ch;color:oklch(0.97 0.012 75 / .7)}
 .page .lede{color:var(--muted-fg)}
 .kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:12px;margin:16px 0}
-.kpi,.card{background:var(--surface);border:1px solid var(--border);border-radius:var(--r-3xl);padding:16px 18px}
+.kpi,.card{background:var(--surface);color:var(--ink);border:1px solid var(--border);border-radius:var(--r-3xl);padding:16px 18px;overflow:hidden;overflow-wrap:anywhere}
 .kpi b,.metric{display:block;font-size:28px;font-weight:600;letter-spacing:-.03em}
+.kpi small,.kpi span{display:block}
 .kpi small,.sub{color:var(--muted-fg);font-size:12px}
 .grid{display:grid;gap:12px}
 .g2{grid-template-columns:repeat(auto-fit,minmax(240px,1fr))}
